@@ -2,17 +2,17 @@ var config = {
     type: Phaser.AUTO,
     width: 1280,
     height: 720,
+    parent: container,
     scene: {
         preload: preload,
         create: create,
-        update: update
+        update: update,
     }
 };
 
 var game = new Phaser.Game(config);
 var width = game.config.width;
 var height = game.config.height;
-var startText;
 var startTextStartHeight = 540;
 var up;
 
@@ -27,14 +27,16 @@ function preload() {
 function create() {
     this.add.image(width / 2, height / 2, 'BG');
     this.add.image(width / 2, height / 2, 'SLOTMACHINE');
-    spin = this.add.image(870, 616, 'SPIN');
+    var spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
     startText = this.add.image(870, startTextStartHeight, 'START');
     this.add.image(970, 675, 'MOUSEHAND');
 
+    spin.on('pointerdown', spinning);
 }
 
 function update() {
     startMovement(startText, 10);
+
 }
 
 function startMovement(startText, maximumMovement) {
@@ -45,6 +47,6 @@ function startMovement(startText, maximumMovement) {
 }
 
 function spinning() {
-    console.log("clicked");
 
+    console.log("clicked");
 }
