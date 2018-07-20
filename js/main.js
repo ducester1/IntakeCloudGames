@@ -16,6 +16,10 @@ var height = game.config.height;
 var startTextStartHeight = 540;
 var startText;
 var up;
+var startSpinning = false;
+var reel1, reel2, reel3, reel4;
+var reel1Speed = 1;
+var maxReelSpeed = 10;
 
 function preload() {
     //back- / foreground images
@@ -52,7 +56,7 @@ function preload() {
     this.load.image('SLOTSDIAMOND', 'assets/slots-diamond.png');
     this.load.image('SLOTSDIAMONDLIGHTER', 'assets/slots-diamond-lighter.png');
     this.load.image('SLOTSLEMON', 'assets/slots-lemon.png');
-    this.load.image('SLOTSMELON', 'assets/slots-lemon.png');
+    this.load.image('SLOTSMELON', 'assets/slots-melon.png');
 
 
 
@@ -72,16 +76,54 @@ function create() {
     this.add.sprite(364, 630, 'LINESNR');
     this.add.sprite(460, 630, 'TOTALBETNR');
 
+    //create slots
+    reel1 = [
+        this.add.sprite(410, 140 + 0, 'SLOTS7'),
+        this.add.sprite(410, 140 + 88, 'SLOTS10'),
+        this.add.sprite(410, 140 + 88 * 2, 'SLOTSMELON'),
+        this.add.sprite(410, 140 + 88 * 3, 'SLOTSLEMON'),
+        this.add.sprite(410, 140 + 88 * 4, 'SLOTSDIAMOND'),
+        this.add.sprite(410, 140 + 88 * 5, 'SLOTSBAR'),
+        this.add.sprite(410, 140 + 88 * 6, 'SLOTSCROWN')
+    ];
+    reel2 = [
+        this.add.sprite(560, 140 + 0, 'SLOTS7'),
+        this.add.sprite(560, 140 + 88, 'SLOTS10'),
+        this.add.sprite(560, 140 + 88 * 2, 'SLOTSMELON'),
+        this.add.sprite(560, 140 + 88 * 3, 'SLOTSLEMON'),
+        this.add.sprite(560, 140 + 88 * 4, 'SLOTSDIAMOND'),
+        this.add.sprite(560, 140 + 88 * 5, 'SLOTSBAR'),
+        this.add.sprite(560, 140 + 88 * 6, 'SLOTSCROWN')
+    ];
+    reel3 = [
+        this.add.sprite(720, 140 + 0, 'SLOTS7'),
+        this.add.sprite(720, 140 + 88, 'SLOTS10'),
+        this.add.sprite(720, 140 + 88 * 2, 'SLOTSMELON'),
+        this.add.sprite(720, 140 + 88 * 3, 'SLOTSLEMON'),
+        this.add.sprite(720, 140 + 88 * 4, 'SLOTSDIAMOND'),
+        this.add.sprite(720, 140 + 88 * 5, 'SLOTSBAR'),
+        this.add.sprite(720, 140 + 88 * 6, 'SLOTSCROWN')
+    ];
+    reel4 = [
+        this.add.sprite(870, 140 + 0, 'SLOTS7'),
+        this.add.sprite(870, 140 + 88, 'SLOTS10'),
+        this.add.sprite(870, 140 + 88 * 2, 'SLOTSMELON'),
+        this.add.sprite(870, 140 + 88 * 3, 'SLOTSLEMON'),
+        this.add.sprite(870, 140 + 88 * 4, 'SLOTSDIAMOND'),
+        this.add.sprite(870, 140 + 88 * 5, 'SLOTSBAR'),
+        this.add.sprite(870, 140 + 88 * 6, 'SLOTSCROWN')
+    ];
+
     var spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
     startText = this.add.sprite(870, startTextStartHeight, 'START');
     this.add.sprite(970, 675, 'MOUSEHAND');
 
-    spin.on('pointerdown', spinning);
+    spin.on('pointerdown', startSpin);
 }
 
 function update() {
     startMovement(startText, 10);
-
+    if (startSpinning) spinning();
 }
 
 function startMovement(startText, maximumMovement) {
@@ -91,6 +133,22 @@ function startMovement(startText, maximumMovement) {
     else startText.y -= 0.5;
 }
 
+function startSpin() {
+    startSpinning = true;
+}
+
+
 function spinning() {
-    console.log("clicked");
+    if (reel1Speed < maxReelSpeed) reel1Speed += 0.2;
+    for (let index = 0; index < reel1.length; index++) {
+        reel1[index].y += reel1Speed;
+        if (reel1[index].y > 140 + 88 * 6) {
+            if (index + 1 >= reel1.length) {
+                reel1[index].y = reel1[0].y - 88;
+            } else {
+                var temp = index + 1
+                reel1[index].y = reel1[temp].y - 88;
+            }
+        }
+    }
 }
