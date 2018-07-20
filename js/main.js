@@ -27,7 +27,7 @@ function preload() {
 function create() {
     this.add.image(width / 2, height / 2, 'BG');
     this.add.image(width / 2, height / 2, 'SLOTMACHINE');
-    this.add.image(870, 616, 'SPIN');
+    spin = this.add.image(870, 616, 'SPIN');
     startText = this.add.image(870, startTextStartHeight, 'START');
     this.add.image(970, 675, 'MOUSEHAND');
 
@@ -42,4 +42,9 @@ function startMovement(startText, maximumMovement) {
     if (startText.y <= startTextStartHeight - maximumMovement / 2) up = true;
     if (up) startText.y += 0.5;
     else startText.y -= 0.5;
+}
+
+function spinning() {
+    console.log("clicked");
+
 }
