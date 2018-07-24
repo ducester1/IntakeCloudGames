@@ -19,6 +19,9 @@ var up;
 var startSpinning = false;
 var reel1, reel2, reel3, reel4;
 var reel1Speed = 1;
+var reel2Speed = 1;
+var reel3Speed = 1;
+var reel4Speed = 1;
 var maxReelSpeed = 10;
 
 function preload() {
@@ -140,6 +143,10 @@ function startSpin() {
 
 function spinning() {
     if (reel1Speed < maxReelSpeed) reel1Speed += 0.2;
+    if (reel2Speed < maxReelSpeed) reel2Speed += 0.2;
+    if (reel3Speed < maxReelSpeed) reel3Speed += 0.2;
+    if (reel4Speed < maxReelSpeed) reel4Speed += 0.2;
+
     for (let index = 0; index < reel1.length; index++) {
         reel1[index].y += reel1Speed;
         if (reel1[index].y > 140 + 88 * 6) {
@@ -148,6 +155,42 @@ function spinning() {
             } else {
                 var temp = index + 1
                 reel1[index].y = reel1[temp].y - 88;
+            }
+        }
+    }
+
+    for (let index = 0; index < reel2.length; index++) {
+        reel2[index].y += reel2Speed;
+        if (reel2[index].y > 140 + 88 * 6) {
+            if (index + 1 >= reel2.length) {
+                reel2[index].y = reel2[0].y - 88;
+            } else {
+                var temp = index + 1
+                reel2[index].y = reel2[temp].y - 88;
+            }
+        }
+    }
+
+    for (let index = 0; index < reel3.length; index++) {
+        reel3[index].y += reel3Speed;
+        if (reel3[index].y > 140 + 88 * 6) {
+            if (index + 1 >= reel3.length) {
+                reel3[index].y = reel3[0].y - 88;
+            } else {
+                var temp = index + 1
+                reel3[index].y = reel3[temp].y - 88;
+            }
+        }
+    }
+
+    for (let index = 0; index < reel4.length; index++) {
+        reel4[index].y += reel4Speed;
+        if (reel4[index].y > 140 + 88 * 6) {
+            if (index + 1 >= reel4.length) {
+                reel4[index].y = reel4[0].y - 88;
+            } else {
+                var temp = index + 1
+                reel4[index].y = reel4[temp].y - 88;
             }
         }
     }
