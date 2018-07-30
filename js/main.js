@@ -19,7 +19,8 @@ var startTextStartHeight = 540;
 var yMiddle = 140 + 88 * 3;
 var startText, spin, spinGlow, hand;
 var up;
-var startSpinning = false;
+var startSpinning = false, firstStop = false;
+var reel1Spinning = true, reel2Spinning = true, reel3Spinning = true, reel4Spinning = true;
 var reel1, reel2, reel3, reel4;
 var reel1Speed = { speed: 0 }, reel2Speed = { speed: 0 }, reel3Speed = { speed: 0 }, reel4Speed = { speed: 0 };
 var timedEventFirstSpin;
@@ -83,19 +84,22 @@ function create() {
     this.add.sprite(460, 630, 'TOTALBETNR');
 
     //create slots
-    reel1 = [
-        this.add.sprite(410, 140 + 0, 'SLOTS7'),
-        this.add.sprite(410, 140 + 88, 'SLOTS10'),
-        this.add.sprite(410, 140 + 88 * 2, 'SLOTSMELON'),
-        this.add.sprite(410, 140 + 88 * 3, 'SLOTSLEMON'),
-        this.add.sprite(410, 140 + 88 * 4, 'SLOTSDIAMOND'),
-        this.add.sprite(410, 140 + 88 * 5, 'SLOTSBAR'),
-        this.add.sprite(410, 140 + 88 * 6, 'SLOTSCROWN')
-    ];
+    reel1 = this.add.group();
+    reel1.create(410, 140 + 0, 'SLOTS7');
+    reel1.create(410, 140 + 88, 'SLOTS10');
+    reel1.create(410, 140 + 88 * 2, 'SLOTSMELON');
+    reel1.create(410, 140 + 88 * 3, 'SLOTSLEMON');
+    reel1.create(410, 140 + 88 * 4, 'SLOTSDIAMOND');
+    reel1.create(410, 140 + 88 * 5, 'SLOTSBAR');
+    reel1.create(410, 140 + 88 * 6, 'SLOTSCROWN');
+
     //adds the mask to the sprites so they wont show out of the reels
-    reel1.forEach(sprite => {
-        sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
-    });
+
+    console.log(reel1.getLength())
+    reel1.getChildren().forEach(child => {
+        console.log('hi');
+        child.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
+    }, this);
 
     reel2 = [
         this.add.sprite(560, 140 + 0, 'SLOTSMELON'),
@@ -106,7 +110,9 @@ function create() {
         this.add.sprite(560, 140 + 88 * 5, 'SLOTS7'),
         this.add.sprite(560, 140 + 88 * 6, 'SLOTSDIAMOND')
     ];
+
     reel2.forEach(sprite => {
+
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
@@ -150,7 +156,9 @@ function update() {
     //startMovement(startText, 10);
     if (startSpinning) {
         spinning();
-
+    }
+    if (firstStop) {
+        stopSpinningFirstTime();
     }
 }
 
@@ -160,12 +168,19 @@ function startSpin() {
     spin.setVisible(false);
     hand.setVisible(false);
     spinGlow.setVisible(true);
-    timedEventFirstSpin = updateScene.time.delayedCall(3000, stopSpinning, [], this);
+    timedEventFirstSpin = updateScene.time.delayedCall(3000, firstStop = true, [], this);
 }
 
-function stopSpinning() {
-    console.log('hi');
-    //reel1Acc = -reel1Acc;
+function stopSpinningFirstTime() {
+    console.log(reel1.get('SLOTSLEMON'));
+    console.log(reel1.get('SLOTSLEMON').y);
+    if (reel1.get('SLOTSLEMON').y > (yMiddle - 100) && reel1.get('SLOTSLEMON').y < (yMiddle - 50)) {
+        console.log('stop');
+        reel1.forEach(element => {
+            createScene.tweens.add({ targets: element, y: yMiddle, duration: 500, ease: 'Elastic.Out' });
+        });
+
+    }
 }
 
 function spinning() {
@@ -175,14 +190,16 @@ function spinning() {
     createScene.tweens.add({ targets: reel4Speed, speed: 30, duration: 1000, ease: 'Linear.None' });
 
     //reel 1
-    for (let index = 0; index < reel1.length; index++) {
-        reel1[index].y += reel1Speed.speed;
-        if (reel1[index].y > 140 + 88 * 6) {
-            if (index + 1 >= reel1.length) {
-                reel1[index].y = reel1[0].y - 88;
-            } else {
-                var temp = index + 1
-                reel1[index].y = reel1[temp].y - 88;
+    if (reel1Spinning) {
+        for (let index = 0; index < reel1.length; index++) {
+            reel1[index].y += reel1Speed.speed;
+            if (reel1[index].y > 140 + 88 * 6) {
+                if (index + 1 >= reel1.length) {
+                    reel1[index].y = reel1[0].y - 88;
+                } else {
+                    var temp = index + 1
+                    reel1[index].y = reel1[temp].y - 88;
+                }
             }
         }
     }
