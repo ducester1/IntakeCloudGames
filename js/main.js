@@ -15,7 +15,7 @@ var width = game.config.width;
 var height = game.config.height;
 var startTextStartHeight = 540;
 var startText;
-var spin, spinGlow;
+var spin, spinGlow, hand;
 var up;
 var startSpinning = false;
 var reel1, reel2, reel3, reel4;
@@ -97,39 +97,39 @@ function create() {
     });
 
     reel2 = [
-        this.add.sprite(560, 140 + 0, 'SLOTS7'),
-        this.add.sprite(560, 140 + 88, 'SLOTS10'),
-        this.add.sprite(560, 140 + 88 * 2, 'SLOTSMELON'),
-        this.add.sprite(560, 140 + 88 * 3, 'SLOTSLEMON'),
-        this.add.sprite(560, 140 + 88 * 4, 'SLOTSDIAMOND'),
-        this.add.sprite(560, 140 + 88 * 5, 'SLOTSBAR'),
-        this.add.sprite(560, 140 + 88 * 6, 'SLOTSCROWN')
+        this.add.sprite(560, 140 + 0, 'SLOTSMELON'),
+        this.add.sprite(560, 140 + 88, 'SLOTSCROWN'),
+        this.add.sprite(560, 140 + 88 * 2, 'SLOTSBAR'),
+        this.add.sprite(560, 140 + 88 * 3, 'SLOTS10'),
+        this.add.sprite(560, 140 + 88 * 4, 'SLOTSLEMON'),
+        this.add.sprite(560, 140 + 88 * 5, 'SLOTS7'),
+        this.add.sprite(560, 140 + 88 * 6, 'SLOTSDIAMOND')
     ];
     reel2.forEach(sprite => {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
     reel3 = [
-        this.add.sprite(720, 140 + 0, 'SLOTS7'),
-        this.add.sprite(720, 140 + 88, 'SLOTS10'),
-        this.add.sprite(720, 140 + 88 * 2, 'SLOTSMELON'),
-        this.add.sprite(720, 140 + 88 * 3, 'SLOTSLEMON'),
-        this.add.sprite(720, 140 + 88 * 4, 'SLOTSDIAMOND'),
-        this.add.sprite(720, 140 + 88 * 5, 'SLOTSBAR'),
-        this.add.sprite(720, 140 + 88 * 6, 'SLOTSCROWN')
+        this.add.sprite(720, 140 + 0, 'SLOTSLEMON'),
+        this.add.sprite(720, 140 + 88, 'SLOTSBAR'),
+        this.add.sprite(720, 140 + 88 * 2, 'SLOTS7'),
+        this.add.sprite(720, 140 + 88 * 3, 'SLOTSDIAMOND'),
+        this.add.sprite(720, 140 + 88 * 4, 'SLOTS10'),
+        this.add.sprite(720, 140 + 88 * 5, 'SLOTSCROWN'),
+        this.add.sprite(720, 140 + 88 * 6, 'SLOTSMELON')
     ];
     reel3.forEach(sprite => {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
     reel4 = [
-        this.add.sprite(870, 140 + 0, 'SLOTS7'),
-        this.add.sprite(870, 140 + 88, 'SLOTS10'),
-        this.add.sprite(870, 140 + 88 * 2, 'SLOTSMELON'),
-        this.add.sprite(870, 140 + 88 * 3, 'SLOTSLEMON'),
-        this.add.sprite(870, 140 + 88 * 4, 'SLOTSDIAMOND'),
-        this.add.sprite(870, 140 + 88 * 5, 'SLOTSBAR'),
-        this.add.sprite(870, 140 + 88 * 6, 'SLOTSCROWN')
+        this.add.sprite(870, 140 + 0, 'SLOTSBAR'),
+        this.add.sprite(870, 140 + 88, 'SLOTSDIAMOND'),
+        this.add.sprite(870, 140 + 88 * 2, 'SLOTSLEMON'),
+        this.add.sprite(870, 140 + 88 * 3, 'SLOTSCROWN'),
+        this.add.sprite(870, 140 + 88 * 4, 'SLOTS7'),
+        this.add.sprite(870, 140 + 88 * 5, 'SLOTSMELON'),
+        this.add.sprite(870, 140 + 88 * 6, 'SLOTS10')
     ];
     reel4.forEach(sprite => {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
@@ -138,7 +138,7 @@ function create() {
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
     spin.on('pointerdown', startSpin);
     startText = this.add.sprite(870, startTextStartHeight, 'START');
-    this.add.sprite(970, 675, 'MOUSEHAND');
+    hand = this.add.sprite(970, 675, 'MOUSEHAND');
 
     spinGlow = this.add.sprite(870, 616, 'SPINGLOW').setVisible(false);
 }
@@ -159,6 +159,7 @@ function startSpin(scene) {
     startSpinning = true;
     startText.setVisible(false);
     spin.setVisible(false);
+    hand.setVisible(false);
     spinGlow.setVisible(true);
 
 }
