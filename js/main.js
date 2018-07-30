@@ -9,21 +9,21 @@ var config = {
         update: update,
     }
 };
-
+var updateScene;
 var game = new Phaser.Game(config);
 var width = game.config.width;
 var height = game.config.height;
+
 var startTextStartHeight = 540;
-var startText;
-var spin, spinGlow, hand;
+var yMiddle = 140 + 88 * 3;
+var startText, spin, spinGlow, hand;
 var up;
 var startSpinning = false;
 var reel1, reel2, reel3, reel4;
-var reel1Speed = 1;
-var reel2Speed = 1;
-var reel3Speed = 1;
-var reel4Speed = 1;
-var maxReelSpeed = 20;
+var reel1Speed = 1, reel2Speed = 1, reel3Speed = 1, reel4Speed = 1;
+var reel1Acc = 0.2, reel2Acc = 0.2, reel3Acc = 0.2, reel4Acc = 0.2;
+var maxReelSpeed = 30;
+var timedEventFirstSpin;
 
 function preload() {
     //back- / foreground images
@@ -64,6 +64,7 @@ function preload() {
 }
 
 function create() {
+
     var shape = new Phaser.Geom.Rectangle(360, 270, 570, 268);
     var mask = this.add.graphics({ fillStyle: { color: 0x0000ff } });
     mask.fillRectShape(shape);
@@ -138,37 +139,49 @@ function create() {
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
     spin.on('pointerdown', startSpin);
     startText = this.add.sprite(870, startTextStartHeight, 'START');
+    this.tweens.add({ targets: startText, y: 550, duration: 500, yoyo: true, repeat: -1 });
     hand = this.add.sprite(970, 675, 'MOUSEHAND');
 
     spinGlow = this.add.sprite(870, 616, 'SPINGLOW').setVisible(false);
 }
 
 function update() {
-    startMovement(startText, 10);
-    if (startSpinning) spinning();
+    updateScene = this;
+    //startMovement(startText, 10);
+    if (startSpinning) {
+        spinning();
+
+    }
 }
 
-function startMovement(startText, maximumMovement) {
-    if (startText.y >= startTextStartHeight + maximumMovement / 2) up = false;
-    if (startText.y <= startTextStartHeight - maximumMovement / 2) up = true;
-    if (up) startText.y += 0.5;
-    else startText.y -= 0.5;
-}
-
-function startSpin(scene) {
+function startSpin() {
     startSpinning = true;
     startText.setVisible(false);
     spin.setVisible(false);
     hand.setVisible(false);
     spinGlow.setVisible(true);
+    timedEventFirstSpin = updateScene.time.delayedCall(3000, stopSpinning, [], this);
+}
 
+function stopSpinning() {
+    console.log('hi');
+    reel1Acc = -reel1Acc;
 }
 
 function spinning() {
-    if (reel1Speed < maxReelSpeed) reel1Speed += 0.2;
-    if (reel2Speed < maxReelSpeed) reel2Speed += 0.2;
-    if (reel3Speed < maxReelSpeed) reel3Speed += 0.2;
-    if (reel4Speed < maxReelSpeed) reel4Speed += 0.2;
+
+
+    if (reel1Speed <= maxReelSpeed) reel1Speed += reel1Acc;
+    if (reel2Speed <= maxReelSpeed) reel2Speed += reel2Acc;
+    if (reel3Speed <= maxReelSpeed) reel3Speed += reel3Acc;
+    if (reel4Speed <= maxReelSpeed) reel4Speed += reel4Acc;
+
+    if (reel1Speed > maxReelSpeed) reel1Speed = maxReelSpeed;
+    if (reel2Speed > maxReelSpeed) reel2Speed = maxReelSpeed;
+    if (reel3Speed > maxReelSpeed) reel3Speed = maxReelSpeed;
+    if (reel4Speed > maxReelSpeed) reel4Speed = maxReelSpeed;
+    console.log(reel1Acc);
+    console.log(reel1Speed);
     //reel 1
     for (let index = 0; index < reel1.length; index++) {
         reel1[index].y += reel1Speed;
