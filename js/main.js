@@ -19,10 +19,11 @@ var startTextStartHeight = 540;
 var yMiddle = 140 + 88 * 3;
 var startText, spin, spinGlow, hand;
 var up;
-var startSpinning = false, firstStop = false, tweening = false;
-var reel1Spinning = true, reel2Spinning = true, reel3Spinning = true, reel4Spinning = true;
-var reel1, reel2, reel3, reel4;
-var reel1Speed = { speed: 0 }, reel2Speed = { speed: 0 }, reel3Speed = { speed: 0 }, reel4Speed = { speed: 0 };
+var startSpinning = false, firstStop = false;
+var reelSpinning = [true, true, true, true];
+
+var reel0, reel1, reel2, reel3;
+var reel0Speed = { speed: 0 }, reel1Speed = { speed: 0 }, reel2Speed = { speed: 0 }, reel3Speed = { speed: 0 };
 var timedEventFirstSpin;
 
 function preload() {
@@ -84,7 +85,7 @@ function create() {
     this.add.sprite(460, 630, 'TOTALBETNR');
 
     //create slots
-    reel1 = [
+    reel0 = [
         this.add.sprite(410, 140 + 0, 'SLOTS7'),
         this.add.sprite(410, 140 + 88, 'SLOTS10'),
         this.add.sprite(410, 140 + 88 * 2, 'SLOTSMELON'),
@@ -94,11 +95,11 @@ function create() {
         this.add.sprite(410, 140 + 88 * 6, 'SLOTSCROWN')
     ];
     //adds the mask to the sprites so they wont show out of the reels
-    reel1.forEach(sprite => {
+    reel0.forEach(sprite => {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
-    reel2 = [
+    reel1 = [
         this.add.sprite(560, 140 + 0, 'SLOTSMELON'),
         this.add.sprite(560, 140 + 88, 'SLOTSCROWN'),
         this.add.sprite(560, 140 + 88 * 2, 'SLOTSBAR'),
@@ -107,11 +108,11 @@ function create() {
         this.add.sprite(560, 140 + 88 * 5, 'SLOTS7'),
         this.add.sprite(560, 140 + 88 * 6, 'SLOTSDIAMOND')
     ];
-    reel2.forEach(sprite => {
+    reel1.forEach(sprite => {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
-    reel3 = [
+    reel2 = [
         this.add.sprite(720, 140 + 0, 'SLOTSLEMON'),
         this.add.sprite(720, 140 + 88, 'SLOTSBAR'),
         this.add.sprite(720, 140 + 88 * 2, 'SLOTS7'),
@@ -120,11 +121,11 @@ function create() {
         this.add.sprite(720, 140 + 88 * 5, 'SLOTSCROWN'),
         this.add.sprite(720, 140 + 88 * 6, 'SLOTSMELON')
     ];
-    reel3.forEach(sprite => {
+    reel2.forEach(sprite => {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
-    reel4 = [
+    reel3 = [
         this.add.sprite(870, 140 + 0, 'SLOTSBAR'),
         this.add.sprite(870, 140 + 88, 'SLOTSDIAMOND'),
         this.add.sprite(870, 140 + 88 * 2, 'SLOTSLEMON'),
@@ -133,7 +134,7 @@ function create() {
         this.add.sprite(870, 140 + 88 * 5, 'SLOTSMELON'),
         this.add.sprite(870, 140 + 88 * 6, 'SLOTS10')
     ];
-    reel4.forEach(sprite => {
+    reel3.forEach(sprite => {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
@@ -168,37 +169,70 @@ function startSpin() {
 }
 
 function stopSpinningFirstTime() {
-    if (reel1[3].y > (yMiddle - 70) && reel1[3].y < (yMiddle - 40) && tweening == false) {
-        console.log('stop');
-        reel1Spinning = false;
-        for (let index = 0; index < reel1.length; index++) {
-            var target = targetFinder(3, index);
+    stopping(0, reel0, 3);
+    //waiting after first reel is tweening
+    updateScene.time.delayedCall(400, stopping1FirstStop => {
+
+        stopping(1, reel1, 2);
+        //waiting after the seccond reel is tweening
+        updateScene.time.delayedCall(400, stopping2FirstStop => {
+
+            stopping(2, reel2, 1);
+            //waiting after the third reel is tweening
+            updateScene.time.delayedCall(1500, stopping3FirstStop => {
+                stopping(3, reel3, 0)
+            })
+
+        }, [], this);
+    }, [], this);
+}
+
+
+function stopping(reelNR, array, chosen) {
+    if (array[chosen].y > (yMiddle - 70) && array[chosen].y < (yMiddle - 40)) {
+        for (var index = 0; index < array.length; index++) {
+            var target = targetFinder(chosen, index);
             if (target == 0 || target == 6) {
-                reel1[index].y = 140 + 88 * target;
+                array[index].y = 140 + 88 * target;
             }
             eTarget = 140 + 88 * target;
-            updateScene.tweens.add({ targets: reel1[index], y: eTarget, duration: 4000, ease: 'Elastic' });
+            updateScene.tweens.add({ targets: array[index], y: eTarget, duration: 4000, ease: 'Elastic' });
         };
-        tweening = true;
+        reelSpinning[reelNR] = false;
     }
 }
 
 function targetFinder(chosen, index) {
+    var move = 0;
     var move = 3 - chosen;
     index += move
-    if (index > 6) index = 0 + (6 - index);
-    else if (index < 0) index = 6 - (0 - index);
+    if (index > 6) index = 0 + (index - 7);
+    else if (index < 0) index = 7 - (0 - index);
     return index;
 }
 
 function spinning() {
+    createScene.tweens.add({ targets: reel0Speed, speed: 20, duration: 500, ease: 'Linear.None' });
     createScene.tweens.add({ targets: reel1Speed, speed: 20, duration: 500, ease: 'Linear.None' });
     createScene.tweens.add({ targets: reel2Speed, speed: 20, duration: 500, ease: 'Linear.None' });
     createScene.tweens.add({ targets: reel3Speed, speed: 20, duration: 500, ease: 'Linear.None' });
-    createScene.tweens.add({ targets: reel4Speed, speed: 20, duration: 500, ease: 'Linear.None' });
 
     //reel 1
-    if (reel1Spinning) {
+    if (reelSpinning[0]) {
+        for (let index = 0; index < reel0.length; index++) {
+            reel0[index].y += reel0Speed.speed;
+            if (reel0[index].y > 140 + 88 * 6) {
+                if (index + 1 >= reel0.length) {
+                    reel0[index].y = reel0[0].y - 88;
+                } else {
+                    var temp = index + 1
+                    reel0[index].y = reel0[temp].y - 88;
+                }
+            }
+        }
+    }
+    //reel 2
+    if (reelSpinning[1]) {
         for (let index = 0; index < reel1.length; index++) {
             reel1[index].y += reel1Speed.speed;
             if (reel1[index].y > 140 + 88 * 6) {
@@ -211,41 +245,32 @@ function spinning() {
             }
         }
     }
-    //reel 2
-    for (let index = 0; index < reel2.length; index++) {
-        reel2[index].y += reel2Speed.speed;
-        if (reel2[index].y > 140 + 88 * 6) {
-            if (index + 1 >= reel2.length) {
-                reel2[index].y = reel2[0].y - 88;
-            } else {
-                var temp = index + 1
-                reel2[index].y = reel2[temp].y - 88;
-            }
-        }
-    }
     //reel 3
-    for (let index = 0; index < reel3.length; index++) {
-        reel3[index].y += reel3Speed.speed;
-        if (reel3[index].y > 140 + 88 * 6) {
-            if (index + 1 >= reel3.length) {
-                reel3[index].y = reel3[0].y - 88;
-            } else {
-                var temp = index + 1
-                reel3[index].y = reel3[temp].y - 88;
+    if (reelSpinning[2]) {
+        for (let index = 0; index < reel2.length; index++) {
+            reel2[index].y += reel2Speed.speed;
+            if (reel2[index].y > 140 + 88 * 6) {
+                if (index + 1 >= reel2.length) {
+                    reel2[index].y = reel2[0].y - 88;
+                } else {
+                    var temp = index + 1
+                    reel2[index].y = reel2[temp].y - 88;
+                }
             }
         }
     }
     //reel 4
-    for (let index = 0; index < reel4.length; index++) {
-        reel4[index].y += reel4Speed.speed;
-        if (reel4[index].y > 140 + 88 * 6) {
-            if (index + 1 >= reel4.length) {
-                reel4[index].y = reel4[0].y - 88;
-            } else {
-                var temp = index + 1
-                reel4[index].y = reel4[temp].y - 88;
+    if (reelSpinning[3]) {
+        for (let index = 0; index < reel3.length; index++) {
+            reel3[index].y += reel3Speed.speed;
+            if (reel3[index].y > 140 + 88 * 6) {
+                if (index + 1 >= reel3.length) {
+                    reel3[index].y = reel3[0].y - 88;
+                } else {
+                    var temp = index + 1
+                    reel3[index].y = reel3[temp].y - 88;
+                }
             }
         }
     }
-
 }
