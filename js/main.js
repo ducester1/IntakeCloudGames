@@ -15,6 +15,7 @@ var width = game.config.width;
 var height = game.config.height;
 var startTextStartHeight = 540;
 var startText;
+var spin, spinGlow;
 var up;
 var startSpinning = false;
 var reel1, reel2, reel3, reel4;
@@ -22,7 +23,7 @@ var reel1Speed = 1;
 var reel2Speed = 1;
 var reel3Speed = 1;
 var reel4Speed = 1;
-var maxReelSpeed = 10;
+var maxReelSpeed = 20;
 
 function preload() {
     //back- / foreground images
@@ -60,12 +61,13 @@ function preload() {
     this.load.image('SLOTSDIAMONDLIGHTER', 'assets/slots-diamond-lighter.png');
     this.load.image('SLOTSLEMON', 'assets/slots-lemon.png');
     this.load.image('SLOTSMELON', 'assets/slots-melon.png');
-
-
-
 }
 
 function create() {
+    var shape = new Phaser.Geom.Rectangle(360, 270, 570, 268);
+    var mask = this.add.graphics({ fillStyle: { color: 0x0000ff } });
+    mask.fillRectShape(shape);
+
     this.add.sprite(width / 2, height / 2, 'BG');
     this.add.sprite(width / 2, height / 2, 'SLOTMACHINE');
     this.add.sprite(410, 405, 'REELBG');
@@ -89,6 +91,11 @@ function create() {
         this.add.sprite(410, 140 + 88 * 5, 'SLOTSBAR'),
         this.add.sprite(410, 140 + 88 * 6, 'SLOTSCROWN')
     ];
+    //adds the mask to the sprites so they wont show out of the reels
+    reel1.forEach(sprite => {
+        sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
+    });
+
     reel2 = [
         this.add.sprite(560, 140 + 0, 'SLOTS7'),
         this.add.sprite(560, 140 + 88, 'SLOTS10'),
@@ -98,6 +105,10 @@ function create() {
         this.add.sprite(560, 140 + 88 * 5, 'SLOTSBAR'),
         this.add.sprite(560, 140 + 88 * 6, 'SLOTSCROWN')
     ];
+    reel2.forEach(sprite => {
+        sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
+    });
+
     reel3 = [
         this.add.sprite(720, 140 + 0, 'SLOTS7'),
         this.add.sprite(720, 140 + 88, 'SLOTS10'),
@@ -107,6 +118,10 @@ function create() {
         this.add.sprite(720, 140 + 88 * 5, 'SLOTSBAR'),
         this.add.sprite(720, 140 + 88 * 6, 'SLOTSCROWN')
     ];
+    reel3.forEach(sprite => {
+        sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
+    });
+
     reel4 = [
         this.add.sprite(870, 140 + 0, 'SLOTS7'),
         this.add.sprite(870, 140 + 88, 'SLOTS10'),
@@ -116,12 +131,16 @@ function create() {
         this.add.sprite(870, 140 + 88 * 5, 'SLOTSBAR'),
         this.add.sprite(870, 140 + 88 * 6, 'SLOTSCROWN')
     ];
+    reel4.forEach(sprite => {
+        sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
+    });
 
-    var spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
+    spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
+    spin.on('pointerdown', startSpin);
     startText = this.add.sprite(870, startTextStartHeight, 'START');
     this.add.sprite(970, 675, 'MOUSEHAND');
 
-    spin.on('pointerdown', startSpin);
+    spinGlow = this.add.sprite(870, 616, 'SPINGLOW').setVisible(false);
 }
 
 function update() {
@@ -136,17 +155,20 @@ function startMovement(startText, maximumMovement) {
     else startText.y -= 0.5;
 }
 
-function startSpin() {
+function startSpin(scene) {
     startSpinning = true;
-}
+    startText.setVisible(false);
+    spin.setVisible(false);
+    spinGlow.setVisible(true);
 
+}
 
 function spinning() {
     if (reel1Speed < maxReelSpeed) reel1Speed += 0.2;
     if (reel2Speed < maxReelSpeed) reel2Speed += 0.2;
     if (reel3Speed < maxReelSpeed) reel3Speed += 0.2;
     if (reel4Speed < maxReelSpeed) reel4Speed += 0.2;
-
+    //reel 1
     for (let index = 0; index < reel1.length; index++) {
         reel1[index].y += reel1Speed;
         if (reel1[index].y > 140 + 88 * 6) {
@@ -158,7 +180,7 @@ function spinning() {
             }
         }
     }
-
+    //reel 2
     for (let index = 0; index < reel2.length; index++) {
         reel2[index].y += reel2Speed;
         if (reel2[index].y > 140 + 88 * 6) {
@@ -170,7 +192,7 @@ function spinning() {
             }
         }
     }
-
+    //reel 3
     for (let index = 0; index < reel3.length; index++) {
         reel3[index].y += reel3Speed;
         if (reel3[index].y > 140 + 88 * 6) {
@@ -182,7 +204,7 @@ function spinning() {
             }
         }
     }
-
+    //reel 4
     for (let index = 0; index < reel4.length; index++) {
         reel4[index].y += reel4Speed;
         if (reel4[index].y > 140 + 88 * 6) {
@@ -194,4 +216,5 @@ function spinning() {
             }
         }
     }
+
 }
