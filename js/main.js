@@ -10,6 +10,7 @@ var config = {
     }
 };
 var updateScene;
+var createScene;
 var game = new Phaser.Game(config);
 var width = game.config.width;
 var height = game.config.height;
@@ -20,9 +21,7 @@ var startText, spin, spinGlow, hand;
 var up;
 var startSpinning = false;
 var reel1, reel2, reel3, reel4;
-var reel1Speed = 1, reel2Speed = 1, reel3Speed = 1, reel4Speed = 1;
-var reel1Acc = 0.2, reel2Acc = 0.2, reel3Acc = 0.2, reel4Acc = 0.2;
-var maxReelSpeed = 30;
+var reel1Speed = { speed: 0 }, reel2Speed = { speed: 0 }, reel3Speed = { speed: 0 }, reel4Speed = { speed: 0 };
 var timedEventFirstSpin;
 
 function preload() {
@@ -64,6 +63,7 @@ function preload() {
 }
 
 function create() {
+    createScene = this;
 
     var shape = new Phaser.Geom.Rectangle(360, 270, 570, 268);
     var mask = this.add.graphics({ fillStyle: { color: 0x0000ff } });
@@ -165,26 +165,18 @@ function startSpin() {
 
 function stopSpinning() {
     console.log('hi');
-    reel1Acc = -reel1Acc;
+    //reel1Acc = -reel1Acc;
 }
 
 function spinning() {
+    createScene.tweens.add({ targets: reel1Speed, speed: 30, duration: 1000, ease: 'Linear.None' });
+    createScene.tweens.add({ targets: reel2Speed, speed: 30, duration: 1000, ease: 'Linear.None' });
+    createScene.tweens.add({ targets: reel3Speed, speed: 30, duration: 1000, ease: 'Linear.None' });
+    createScene.tweens.add({ targets: reel4Speed, speed: 30, duration: 1000, ease: 'Linear.None' });
 
-
-    if (reel1Speed <= maxReelSpeed) reel1Speed += reel1Acc;
-    if (reel2Speed <= maxReelSpeed) reel2Speed += reel2Acc;
-    if (reel3Speed <= maxReelSpeed) reel3Speed += reel3Acc;
-    if (reel4Speed <= maxReelSpeed) reel4Speed += reel4Acc;
-
-    if (reel1Speed > maxReelSpeed) reel1Speed = maxReelSpeed;
-    if (reel2Speed > maxReelSpeed) reel2Speed = maxReelSpeed;
-    if (reel3Speed > maxReelSpeed) reel3Speed = maxReelSpeed;
-    if (reel4Speed > maxReelSpeed) reel4Speed = maxReelSpeed;
-    console.log(reel1Acc);
-    console.log(reel1Speed);
     //reel 1
     for (let index = 0; index < reel1.length; index++) {
-        reel1[index].y += reel1Speed;
+        reel1[index].y += reel1Speed.speed;
         if (reel1[index].y > 140 + 88 * 6) {
             if (index + 1 >= reel1.length) {
                 reel1[index].y = reel1[0].y - 88;
@@ -196,7 +188,7 @@ function spinning() {
     }
     //reel 2
     for (let index = 0; index < reel2.length; index++) {
-        reel2[index].y += reel2Speed;
+        reel2[index].y += reel2Speed.speed;
         if (reel2[index].y > 140 + 88 * 6) {
             if (index + 1 >= reel2.length) {
                 reel2[index].y = reel2[0].y - 88;
@@ -208,7 +200,7 @@ function spinning() {
     }
     //reel 3
     for (let index = 0; index < reel3.length; index++) {
-        reel3[index].y += reel3Speed;
+        reel3[index].y += reel3Speed.speed;
         if (reel3[index].y > 140 + 88 * 6) {
             if (index + 1 >= reel3.length) {
                 reel3[index].y = reel3[0].y - 88;
@@ -220,7 +212,7 @@ function spinning() {
     }
     //reel 4
     for (let index = 0; index < reel4.length; index++) {
-        reel4[index].y += reel4Speed;
+        reel4[index].y += reel4Speed.speed;
         if (reel4[index].y > 140 + 88 * 6) {
             if (index + 1 >= reel4.length) {
                 reel4[index].y = reel4[0].y - 88;
