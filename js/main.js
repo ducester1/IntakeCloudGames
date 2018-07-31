@@ -15,16 +15,16 @@ var game = new Phaser.Game(config);
 var width = game.config.width;
 var height = game.config.height;
 
-var startTextStartHeight = 540;
 var yMiddle = 140 + 88 * 3;
+var blinkCount = { count: 0 };
+var blinkCountCheck = 0;
 var startText, spin, spinGlow, hand;
-var up;
-var startSpinning = false, firstStop = false;
+var startSpinning = false, firstStop = false, isBlinking = false;
 var reelSpinning = [true, true, true, true];
 
 var reel0, reel1, reel2, reel3;
+var roll1;
 var reel0Speed = { speed: 0 }, reel1Speed = { speed: 0 }, reel2Speed = { speed: 0 }, reel3Speed = { speed: 0 };
-var timedEventFirstSpin;
 
 function preload() {
     //back- / foreground images
@@ -138,9 +138,15 @@ function create() {
         sprite.mask = new Phaser.Display.Masks.GeometryMask(this, mask)
     });
 
+    roll1 = [
+        this.add.sprite(560, 140 + 88 * 3, 'SLOTSBARLIGHTER').setVisible(false),
+        this.add.sprite(720, 140 + 88 * 3, 'SLOTSBARLIGHTER').setVisible(false),
+        this.add.sprite(870, 140 + 88 * 3, 'SLOTSBARLIGHTER').setVisible(false)
+    ];
+
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
     spin.on('pointerdown', startSpin);
-    startText = this.add.sprite(870, startTextStartHeight, 'START');
+    startText = this.add.sprite(870, 540, 'START');
     this.tweens.add({ targets: startText, y: 550, duration: 500, yoyo: true, repeat: -1 });
     hand = this.add.sprite(970, 675, 'MOUSEHAND');
 
@@ -149,13 +155,20 @@ function create() {
 
 function update() {
     updateScene = this;
-    //startMovement(startText, 10);
-    console
+
     if (startSpinning) {
         spinning();
     }
     if (firstStop) {
         stopSpinningFirstTime();
+    }
+    if (isBlinking) {
+        createScene.tweens.add({ targets: blinkCount, count: 8, duration: 2000, ease: 'Linear.easeIn' });
+        var cfloor = Math.round(blinkCount.count);
+        if (cfloor != blinkCountCheck) {
+            blinkCountCheck = cfloor;
+            blinking();
+        }
     }
 }
 
@@ -165,7 +178,7 @@ function startSpin() {
     spin.setVisible(false);
     hand.setVisible(false);
     spinGlow.setVisible(true);
-    timedEventFirstSpin = updateScene.time.delayedCall(3000, setFirstStop => { firstStop = true; }, [], this);
+    updateScene.time.delayedCall(3000, setFirstStop => { firstStop = true; }, [], this);
 }
 
 function stopSpinningFirstTime() {
@@ -196,12 +209,16 @@ function stopping(reelNR, array, chosen) {
                 array[index].y = 140 + 88 * target;
             }
             eTarget = 140 + 88 * target;
-            updateScene.tweens.add({ targets: array[index], y: eTarget, duration: 4000, ease: 'Elastic' });
+            updateScene.tweens.add({ targets: array[index], y: eTarget, duration: 4000, ease: 'Elastic' }).setCallback('onComplete', func => {
+                firstStop = false;
+                isBlinking = true;
+            }, [], this);
         };
         reelSpinning[reelNR] = false;
     }
 }
 
+//Finds the target position of the slots
 function targetFinder(chosen, index) {
     var move = 0;
     var move = 3 - chosen;
@@ -211,6 +228,21 @@ function targetFinder(chosen, index) {
     return index;
 }
 
+function blinking() {
+    roll1.forEach(element => {
+        element.setVisible(blink(element));
+    });
+    reel1[2].setVisible(blink(reel1[2]));
+    reel2[1].setVisible(blink(reel2[1]));
+    reel3[0].setVisible(blink(reel3[0]));
+}
+
+function blink(element) {
+    if (element.visible == true) return false;
+    else return true;
+}
+
+//Spinns the reels
 function spinning() {
     createScene.tweens.add({ targets: reel0Speed, speed: 20, duration: 500, ease: 'Linear.None' });
     createScene.tweens.add({ targets: reel1Speed, speed: 20, duration: 500, ease: 'Linear.None' });
