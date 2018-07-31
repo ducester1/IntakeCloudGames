@@ -141,7 +141,8 @@ function create() {
     roll1 = [
         this.add.sprite(560, 140 + 88 * 3, 'SLOTSBARLIGHTER').setVisible(false),
         this.add.sprite(720, 140 + 88 * 3, 'SLOTSBARLIGHTER').setVisible(false),
-        this.add.sprite(870, 140 + 88 * 3, 'SLOTSBARLIGHTER').setVisible(false)
+        this.add.sprite(870, 140 + 88 * 3, 'SLOTSBARLIGHTER').setVisible(false),
+        this.add.sprite(750, 100, 'TOPBARSGLOW').setVisible(false)
     ];
 
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
