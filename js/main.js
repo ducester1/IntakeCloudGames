@@ -16,10 +16,11 @@ var width = game.config.width;
 var height = game.config.height;
 
 var yMiddle = 140 + 88 * 3;
+var winSize = { size: 0 };
 var blinkCount = { count: 0 };
 var blinkCountCheck = 0;
-var startText, spin, spinGlow, hand;
-var startSpinning = false, firstStop = false, isBlinking = false;
+var startText, spin, spinGlow, hand, bigWin, darkBG;
+var startSpinning = false, firstStop = false, isBlinking = false, win = false;
 var reelSpinning = [true, true, true, true];
 
 var reel0, reel1, reel2, reel3;
@@ -145,6 +146,11 @@ function create() {
         this.add.sprite(750, 100, 'TOPBARSGLOW').setVisible(false)
     ];
 
+    darkBG = this.add.sprite(width / 2, height / 2, 'DARKBG').setVisible(false);
+    bigWin = this.add.sprite(width / 2, height / 2, 'BIGWIN');
+    bigWin.scaleX = 0;
+    bigWin.scaleY = 0;
+
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
     spin.on('pointerdown', startSpin);
     startText = this.add.sprite(870, 540, 'START');
@@ -164,12 +170,20 @@ function update() {
         stopSpinningFirstTime();
     }
     if (isBlinking) {
-        createScene.tweens.add({ targets: blinkCount, count: 8, duration: 2000, ease: 'Linear.easeIn' });
-        var cfloor = Math.round(blinkCount.count);
-        if (cfloor != blinkCountCheck) {
-            blinkCountCheck = cfloor;
+        updateScene.tweens.add({ targets: blinkCount, count: 8, duration: 2000, ease: 'Linear.easeIn' }).setCallback('onComplete', func => { win = true; }, [], this);
+        console.log(blinkCount.count);
+        var cRound = Math.round(blinkCount.count);
+        if (cRound != blinkCountCheck) {
+            blinkCountCheck = cRound;
             blinking();
         }
+    }
+    if (win) {
+        createScene.tweens.add({ targets: winSize, size: 1.2, duration: 4000, ease: 'Elastic' }).setCallback('onComplete', func => { }, [], this)
+        darkBG.setVisible(true);
+        bigWin.scaleX = winSize.size;
+        bigWin.scaleY = winSize.size;
+        //TODO add win numbers
     }
 }
 
@@ -183,6 +197,8 @@ function startSpin() {
 }
 
 function stopSpinningFirstTime() {
+    spinGlow.setVisible(false);
+    spin.setVisible(true);
     stopping(0, reel0, 3);
     //waiting after first reel is tweening
     updateScene.time.delayedCall(400, stopping1FirstStop => {
