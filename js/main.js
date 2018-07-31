@@ -23,6 +23,8 @@ var startText, spin, spinGlow, hand, bigWin, darkBG;
 var startSpinning = false, firstStop = false, isBlinking = false, win = false;
 var reelSpinning = [true, true, true, true];
 
+var startTextTween, blinkTween, reel0SpeedTween, reel1SpeedTween, reel2SpeedTween, reel3SpeedTween;
+
 var reel0, reel1, reel2, reel3;
 var roll1;
 var reel0Speed = { speed: 0 }, reel1Speed = { speed: 0 }, reel2Speed = { speed: 0 }, reel3Speed = { speed: 0 };
@@ -152,9 +154,9 @@ function create() {
     bigWin.scaleY = 0;
 
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
-    spin.on('pointerdown', startSpin);
+    spin.on('pointerdown', func => { startSpin(); startTextTween.stop() });
     startText = this.add.sprite(870, 540, 'START');
-    this.tweens.add({ targets: startText, y: 550, duration: 500, yoyo: true, repeat: -1 });
+    startTextTween = this.tweens.add({ targets: startText, y: 550, duration: 500, yoyo: true, repeat: -1 });
     hand = this.add.sprite(970, 675, 'MOUSEHAND');
 
     spinGlow = this.add.sprite(870, 616, 'SPINGLOW').setVisible(false);
@@ -170,7 +172,7 @@ function update() {
         stopSpinningFirstTime();
     }
     if (isBlinking) {
-        updateScene.tweens.add({ targets: blinkCount, count: 8, duration: 2000, ease: 'Linear.easeIn' }).setCallback('onComplete', func => { win = true; }, [], this);
+        blinkTween = updateScene.tweens.add({ targets: blinkCount, count: 8, duration: 2000, ease: 'Linear.easeIn' }).setCallback('onComplete', func => { win = true; }, [], this);
         console.log(blinkCount.count);
         var cRound = Math.round(blinkCount.count);
         if (cRound != blinkCountCheck) {
@@ -179,7 +181,9 @@ function update() {
         }
     }
     if (win) {
-        createScene.tweens.add({ targets: winSize, size: 1.2, duration: 4000, ease: 'Elastic' }).setCallback('onComplete', func => { }, [], this)
+        createScene.tweens.add({ targets: winSize, size: 1.2, duration: 4000, ease: 'Elastic' }).setCallback('onComplete', func => {
+            blinkTween.stop();
+        }, [], this)
         darkBG.setVisible(true);
         bigWin.scaleX = winSize.size;
         bigWin.scaleY = winSize.size;
@@ -199,6 +203,10 @@ function startSpin() {
 function stopSpinningFirstTime() {
     spinGlow.setVisible(false);
     spin.setVisible(true);
+    reel0SpeedTween.stop();
+    reel1SpeedTween.stop();
+    reel2SpeedTween.stop();
+    reel3SpeedTween.stop();
     stopping(0, reel0, 3);
     //waiting after first reel is tweening
     updateScene.time.delayedCall(400, stopping1FirstStop => {
@@ -261,10 +269,10 @@ function blink(element) {
 
 //Spinns the reels
 function spinning() {
-    createScene.tweens.add({ targets: reel0Speed, speed: 20, duration: 500, ease: 'Linear.None' });
-    createScene.tweens.add({ targets: reel1Speed, speed: 20, duration: 500, ease: 'Linear.None' });
-    createScene.tweens.add({ targets: reel2Speed, speed: 20, duration: 500, ease: 'Linear.None' });
-    createScene.tweens.add({ targets: reel3Speed, speed: 20, duration: 500, ease: 'Linear.None' });
+    reel0SpeedTween = createScene.tweens.add({ targets: reel0Speed, speed: 20, duration: 500, ease: 'Linear.None' });
+    reel1SpeedTween = createScene.tweens.add({ targets: reel1Speed, speed: 20, duration: 500, ease: 'Linear.None' });
+    reel2SpeedTween = createScene.tweens.add({ targets: reel2Speed, speed: 20, duration: 500, ease: 'Linear.None' });
+    reel3SpeedTween = createScene.tweens.add({ targets: reel3Speed, speed: 20, duration: 500, ease: 'Linear.None' });
 
     //reel 1
     if (reelSpinning[0]) {
