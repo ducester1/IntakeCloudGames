@@ -14,6 +14,7 @@ var createScene;
 var game = new Phaser.Game(config);
 var width = game.config.width;
 var height = game.config.height;
+var createTween = true;
 
 var yMiddle = 140 + 88 * 3;
 var winSize = { size: 0 };
@@ -23,7 +24,7 @@ var startText, spin, spinGlow, hand, bigWin, darkBG;
 var startSpinning = false, firstStop = false, isBlinking = false, win = false;
 var reelSpinning = [true, true, true, true];
 
-var startTextTween, blinkTween, reel0SpeedTween, reel1SpeedTween, reel2SpeedTween, reel3SpeedTween;
+var startTextTween, blinkTween, winUpTween, windDownTween, reel0SpeedTween, reel1SpeedTween, reel2SpeedTween, reel3SpeedTween;
 
 var reel0, reel1, reel2, reel3;
 var roll1;
@@ -148,18 +149,20 @@ function create() {
         this.add.sprite(750, 100, 'TOPBARSGLOW').setVisible(false)
     ];
 
-    darkBG = this.add.sprite(width / 2, height / 2, 'DARKBG').setVisible(false);
-    bigWin = this.add.sprite(width / 2, height / 2, 'BIGWIN');
-    bigWin.scaleX = 0;
-    bigWin.scaleY = 0;
+
 
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
-    spin.on('pointerdown', func => { startSpin(); startTextTween.stop() });
+    spin.on('pointerdown', func => { firstSpin(); startTextTween.stop() });
     startText = this.add.sprite(870, 540, 'START');
     startTextTween = this.tweens.add({ targets: startText, y: 550, duration: 500, yoyo: true, repeat: -1 });
     hand = this.add.sprite(970, 675, 'MOUSEHAND');
 
     spinGlow = this.add.sprite(870, 616, 'SPINGLOW').setVisible(false);
+
+    darkBG = this.add.sprite(width / 2, height / 2, 'DARKBG').setVisible(false);
+    bigWin = this.add.sprite(width / 2, height / 2, 'BIGWIN');
+    bigWin.scaleX = 0;
+    bigWin.scaleY = 0;
 }
 
 function update() {
@@ -172,26 +175,48 @@ function update() {
         stopSpinningFirstTime();
     }
     if (isBlinking) {
-        blinkTween = updateScene.tweens.add({ targets: blinkCount, count: 8, duration: 2000, ease: 'Linear.easeIn' }).setCallback('onComplete', func => { win = true; }, [], this);
-        console.log(blinkCount.count);
+        if (createTween) {
+            blinkTween = updateScene.tweens.add({ targets: blinkCount, count: 8, duration: 2000, ease: 'Linear.easeIn' }).setCallback('onComplete', func => { win = true; isBlinking = false; }, [], this);
+        }
+        createTween = false;
         var cRound = Math.round(blinkCount.count);
         if (cRound != blinkCountCheck) {
             blinkCountCheck = cRound;
             blinking();
         }
+
     }
+    console.log(win);
     if (win) {
-        createScene.tweens.add({ targets: winSize, size: 1.2, duration: 4000, ease: 'Elastic' }).setCallback('onComplete', func => {
+        winUpTween = createScene.tweens.add({ targets: winSize, size: 1.2, duration: 2000, ease: 'Elastic', easeParams: [2, 1] }).setCallback('onComplete', func => {
             blinkTween.stop();
+
+            //making the win go away again
+            updateScene.time.delayedCall(3000, winAway => {
+                winUpTween.stop();
+                windDownTween = createScene.tweens.add({ targets: winSize, size: 0, duration: 100, ease: 'Linear.easeIn' }).setCallback('onComplete', func => {
+                    darkBG.setVisible(false);
+                    spin.setVisible(false);
+                    spinGlow.setVisible(true);
+                    spinGlow.setInteractive();
+                    windDownTween.stop();
+                    spinGlow.on('pointerdown', func => {
+
+
+                    }, [], this);
+                }, [], this);
+            }, [], this);
         }, [], this)
         darkBG.setVisible(true);
-        bigWin.scaleX = winSize.size;
-        bigWin.scaleY = winSize.size;
+
+        win = false;
         //TODO add win numbers
     }
+    bigWin.scaleX = winSize.size;
+    bigWin.scaleY = winSize.size;
 }
 
-function startSpin() {
+function firstSpin() {
     startSpinning = true;
     startText.setVisible(false);
     spin.setVisible(false);
