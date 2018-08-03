@@ -20,7 +20,8 @@ var yMiddle = 140 + 88 * 3;
 var winSize = { size: 0 }, diamondSize = { size: 1 }, hugeWinSize = { size: 0 };
 var blinkCount = { count: 0 };
 var blinkCountCheck = 0, spinCount = 0;
-var startText, spin, spinGlow, interactiveSpinGlow, hand, bigWin, darkBG, hugeWinBG, BGCoins, install;
+var winNumbers;
+var startText, spin, spinGlow, interactiveSpinGlow, hand, bigWin, darkBG, hugeWinBG, BGCoins, install, winZero, winHugeNumbers;
 var startSpinning = false, firstStop = false, barBlinking = false, win = false, seccondStop = false, thirdStop = false, diamondBlinking = false, hugeWin = false;
 var reelSpinning = [true, true, true, true];
 
@@ -47,7 +48,7 @@ function preload() {
     //numbers images
     this.load.image('LINESNR', 'assets/lines-number.png');
     this.load.image('TOTALBETNR', 'assets/total-bet-number.png');
-    this.load.multiatlas('NUMBERS', 'assets/red-numbers-sprite.png');
+    this.load.spritesheet('NUMBERS', 'assets/red-numbers-sprite.png', { frameWidth: 11, frameHeight: 20 });
     this.load.image('NUMBERTHIRDSPIN', 'assets/number-buttom.png');
     //button images
     this.load.image('SPIN', 'assets/spin-btn.png');
@@ -87,6 +88,28 @@ function create() {
     this.add.sprite(870, 405, 'REELOVERLAY');
     this.add.sprite(364, 630, 'LINESNR');
     this.add.sprite(460, 630, 'TOTALBETNR');
+    winNumbers = [
+        this.add.sprite(0, 0, 'NUMBERS', 5),
+        this.add.sprite(11, 0, 'NUMBERS', 8),
+        this.add.sprite(22, 0, 'NUMBERS', 6),
+        this.add.sprite(25, 0, 'NUMBERS', 10),
+        this.add.sprite(36, 0, 'NUMBERS', 8),
+        this.add.sprite(47, 0, 'NUMBERS', 0),
+        this.add.sprite(58, 0, 'NUMBERS', 6, ),
+        this.add.sprite(61, 0, 'NUMBERS', 10),
+        this.add.sprite(72, 0, 'NUMBERS', 9, ),
+        this.add.sprite(83, 0, 'NUMBERS', 8),
+        this.add.sprite(94, 0, 'NUMBERS', 8),
+    ]
+    winNumbers.forEach(element => {
+        element.x += 557;
+        element.y += 629;
+        element.setVisible(false);
+    });
+    winZero = this.add.sprite(651, 629, 'NUMBERS', 0);
+    winHugeNumbers = this.add.sprite(588, 630, 'NUMBERTHIRDSPIN').setVisible(false);
+
+
 
     //create slots
     reel0 = [
@@ -233,6 +256,10 @@ function update() {
     }
 
     if (win) {
+        winZero.setVisible(false);
+        winNumbers.forEach(element => {
+            element.setVisible(true);
+        });
         winUpTween = createScene.tweens.add({ targets: winSize, size: 1.2, duration: 2000, ease: 'Elastic', easeParams: [2, 1] }).setCallback('onComplete', func => {
             BarBlinkTween.stop();
 
@@ -270,6 +297,10 @@ function update() {
 
 
     if (hugeWin) {
+        winNumbers.forEach(element => {
+            element.setVisible(false);
+        });
+        winHugeNumbers.setVisible(true);
         roll3[4].setVisible(true);
         darkBG.setVisible(true);
         BGCoins.setVisible(true);
