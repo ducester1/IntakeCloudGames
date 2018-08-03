@@ -17,14 +17,14 @@ var height = game.config.height;
 var createTween = true, createDiamondTween = true;
 
 var yMiddle = 140 + 88 * 3;
-var winSize = { size: 0 }, diamondSize = { size: 1 };
+var winSize = { size: 0 }, diamondSize = { size: 1 }, hugeWinSize = { size: 0 };
 var blinkCount = { count: 0 };
 var blinkCountCheck = 0, spinCount = 0;
-var startText, spin, spinGlow, interactiveSpinGlow, hand, bigWin, darkBG;
+var startText, spin, spinGlow, interactiveSpinGlow, hand, bigWin, darkBG, hugeWinBG, BGCoins, install;
 var startSpinning = false, firstStop = false, barBlinking = false, win = false, seccondStop = false, thirdStop = false, diamondBlinking = false, hugeWin = false;
 var reelSpinning = [true, true, true, true];
 
-var startTextTween, BarBlinkTween, winUpTween, windDownTween, reel0SpeedTween, reel1SpeedTween, reel2SpeedTween, reel3SpeedTween, diamondTween, diamondSizeTween;
+var startTextTween, BarBlinkTween, winUpTween, windDownTween, reel0SpeedTween, reel1SpeedTween, reel2SpeedTween, reel3SpeedTween, diamondTween, diamondSizeTween, hugeWinUpTween;
 
 var reel0, reel1, reel2, reel3;
 var roll1, roll3;
@@ -47,8 +47,8 @@ function preload() {
     //numbers images
     this.load.image('LINESNR', 'assets/lines-number.png');
     this.load.image('TOTALBETNR', 'assets/total-bet-number.png');
-    this.load.image('NUMBERFIRSTSPIN', 'assets/red-numbers-sprite.png');
-    this.load.image('NUMBERSECCONDSPIN', 'assets/number-buttom.png');
+    this.load.multiatlas('NUMBERS', 'assets/red-numbers-sprite.png');
+    this.load.image('NUMBERTHIRDSPIN', 'assets/number-buttom.png');
     //button images
     this.load.image('SPIN', 'assets/spin-btn.png');
     this.load.image('SPINGLOW', 'assets/spin-btn-glow.png');
@@ -159,7 +159,7 @@ function create() {
 
 
     spin = this.add.sprite(870, 616, 'SPIN').setInteractive();
-    spin.on('pointerdown', func => { firstSpin(); startTextTween.stop() });
+    spin.on('pointerdown', func => { spin.setInteractive(false); firstSpin(); startTextTween.stop(); });
     startText = this.add.sprite(870, 540, 'START');
     startTextTween = this.tweens.add({ targets: startText, y: 550, duration: 500, yoyo: true, repeat: -1 });
     hand = this.add.sprite(970, 675, 'MOUSEHAND');
@@ -171,6 +171,14 @@ function create() {
     bigWin = this.add.sprite(width / 2, height / 2, 'BIGWIN');
     bigWin.scaleX = 0;
     bigWin.scaleY = 0;
+
+    BGCoins = this.add.sprite(width / 2, 312, 'BGCOINS').setVisible(false);
+
+    hugeWinBG = this.add.sprite(width / 2, height / 2, 'HUGEWIN');
+    hugeWinBG.scaleX = 0;
+    hugeWinBG.scaleY = 0;
+
+    install = this.add.sprite(width / 2, 550, 'INSTALL').setVisible(false);
 }
 
 function update() {
@@ -263,7 +271,17 @@ function update() {
 
     if (hugeWin) {
         roll3[4].setVisible(true);
+        darkBG.setVisible(true);
+        BGCoins.setVisible(true);
+        hugeWinUpTween = createScene.tweens.add({ targets: hugeWinSize, size: 1.2, duration: 2000, ease: 'Elastic', easeParams: [2, 1] }).setCallback('onComplete', func => {
+            install.setVisible(true);
+            install.angle = -5;
+            createScene.tweens.add({ targets: install, angle: 5, repeat: -1, yoyo: true })
+        }, [], this);
+        hugeWin = false;
     }
+    hugeWinBG.scaleX = hugeWinSize.size;
+    hugeWinBG.scaleY = hugeWinSize.size;
 }
 
 function firstSpin() {
